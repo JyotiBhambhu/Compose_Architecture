@@ -4,15 +4,21 @@ import LoginScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jyoti.redux.controller.RepoScreen
+import com.jyoti.redux.redux.AppState
+import com.jyoti.redux.search.SearchScreen
 
 @Composable
 fun GitHubNavGraph(
+    appState: AppState,
     modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     navController: NavHostController = rememberNavController(),
     startDestination: String = GitHubDestinations.LOGIN_ROUTE,
     navActions: GitHubNavigationActions = remember(navController) {
@@ -33,7 +39,12 @@ fun GitHubNavGraph(
             })
         }
         composable(route = GitHubDestinations.REPO_ROUTE){
-            RepoScreen()
+            RepoScreen(searchRepo = {
+                navActions.navigateToSearch()
+            })
+        }
+        composable(route = GitHubDestinations.REPO_ROUTE){
+            SearchScreen(appState)
         }
     }
 

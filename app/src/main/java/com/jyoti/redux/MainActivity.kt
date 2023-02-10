@@ -6,14 +6,19 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.jyoti.redux.navigation.GitHubNavGraph
+import com.jyoti.redux.redux.AppState
+import com.jyoti.redux.redux.AppStore
 import com.jyoti.redux.ui.theme.ReduxAppTheme
 
 class MainActivity : ComponentActivity() {
+
+    private var appState: AppState by mutableStateOf(AppState())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -23,22 +28,20 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GitHubNavGraph()
+                    GitHubNavGraph(appState)
                 }
             }
         }
+        AppStore.instance.subscribe(::handleAppState)
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    ReduxAppTheme {
-        Greeting("Android")
+    override fun onDestroy() {
+        super.onDestroy()
+        AppStore.instance.unsubscribe(::handleAppState)
     }
+
+    private fun handleAppState(appState: AppState) {
+        this.appState = appState
+    }
+
 }
