@@ -15,17 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jyoti.redux.redux.AppState
 import com.jyoti.redux.redux.AppStore
+import com.jyoti.redux.redux.Dispatch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(appState: AppState) {
+fun SearchScreen(appState: AppState, dispatch: Dispatch?) {
     val query = appState.searchState.query
     Column(modifier = Modifier.padding(16.dp)) {
         TopAppBar(
             title = {
                 TextField(
                     value = query,
-                    onValueChange = {  AppStore.instance.dispatch(Search(it)) },
+                    onValueChange = {  dispatch?.invoke(Search(it)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -36,7 +37,7 @@ fun SearchScreen(appState: AppState) {
         }else{
             TextButton(
                 onClick = {
-                    AppStore.instance.dispatch(Search("query"))
+                    dispatch?.invoke(Search("query"))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -54,7 +55,7 @@ fun SearchScreen(appState: AppState) {
         if(appState.searchState.data.isNotEmpty()){
             TextButton(
                 onClick = {
-                    AppStore.instance.dispatch(ClearSearch)
+                    dispatch?.invoke(ClearSearch)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

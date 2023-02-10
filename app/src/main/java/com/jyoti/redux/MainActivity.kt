@@ -13,11 +13,15 @@ import androidx.compose.ui.Modifier
 import com.jyoti.redux.navigation.GitHubNavGraph
 import com.jyoti.redux.redux.AppState
 import com.jyoti.redux.redux.AppStore
+import com.jyoti.redux.redux.Dispatch
+import com.jyoti.redux.redux.Unsubscribe
 import com.jyoti.redux.ui.theme.ReduxAppTheme
 
 class MainActivity : ComponentActivity() {
 
     private var appState: AppState by mutableStateOf(AppState())
+    private var dispatch: Dispatch? = null
+    private lateinit var unsubscribe: Unsubscribe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,20 +32,20 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GitHubNavGraph(appState)
+                    GitHubNavGraph(appState, dispatch)
                 }
             }
         }
-        AppStore.instance.subscribe(::handleAppState)
+        AppStore.instance.subscribe{ appState, dispatch ->
+            this.appState = appState
+            this.dispatch = dispatch
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        AppStore.instance.unsubscribe(::handleAppState)
-    }
-
-    private fun handleAppState(appState: AppState) {
-        this.appState = appState
+        unsubscribe.invoke()
+        dispatch = null
     }
 
 }

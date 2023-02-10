@@ -3,13 +3,13 @@ package com.jyoti.redux.redux
 import com.jyoti.redux.search.reduceSearchState
 
 typealias Reducer<State> = (State, Action) -> State
-typealias Subscription<State> = (State) -> Unit //StateChangeListener
+typealias Dispatch = (Action) -> Unit
+typealias Subscription<State> = (State, Dispatch) -> Unit
+typealias Unsubscribe = () -> Unit
 
 interface Store<State> {
     fun getState(): State
-    fun dispatch(action: Action)
-    fun subscribe(subscription: Subscription<State>)
-    fun unsubscribe(subscription: Subscription<State>)
+    fun subscribe(subscription: Subscription<State>): Unsubscribe
 }
 
 abstract class SimpleStore<State>(
@@ -22,14 +22,14 @@ abstract class SimpleStore<State>(
 
     override fun getState() = currentState
 
-    override fun dispatch(action: Action) {
+    private fun dispatch(action: Action) {
         val newState = applyReducers(currentState, action)
         if (currentState == newState) {
             //No change
             return
         }
         currentState = newState
-        subscriptions.forEach { it(currentState) }
+        subscriptions.forEach { it(currentState, ::dispatch) }
     }
 
     private fun applyReducers(current: State, action: Action): State {
@@ -40,20 +40,18 @@ abstract class SimpleStore<State>(
         return newState
     }
 
-    override fun subscribe(subscription: Subscription<State>) {
+    override fun subscribe(subscription: Subscription<State>): Unsubscribe {
         subscriptions.add(subscription)
-        subscription.invoke(currentState)
-    }
-
-    override fun unsubscribe(subscription: Subscription<State>) {
-        subscriptions.remove(subscription)
+        subscription.invoke(currentState, ::dispatch)
+        return { subscriptions.remove(subscription) }
     }
 
 }
 
-class AppStore: SimpleStore<AppState>(
+class AppStore : SimpleStore<AppState>(
     initialState = AppState(),
-    reducers = listOf(::reduceSearchState)) {
+    reducers = listOf(::reduceSearchState)
+) {
 
     companion object {
         val instance by lazy {
