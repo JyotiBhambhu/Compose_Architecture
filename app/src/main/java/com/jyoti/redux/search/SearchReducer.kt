@@ -15,7 +15,7 @@ fun reduceSearchState(state: AppState, action: Action): AppState {
                 data = action.data
             )
         )
-        is SearchFail -> state.copy(searchState = SearchState(loading = false))
+        is SearchError -> state.copy(searchState = SearchState(loading = false))
         else -> state
     }
 

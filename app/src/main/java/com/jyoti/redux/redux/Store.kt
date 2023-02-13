@@ -1,6 +1,7 @@
 package com.jyoti.redux.redux
 
 import com.jyoti.redux.search.reduceSearchState
+import com.jyoti.redux.search.searchMiddleware
 
 typealias Reducer<State> = (State, Action) -> State
 typealias Dispatch = (Action) -> Unit
@@ -14,7 +15,8 @@ interface Store<State> {
 
 abstract class SimpleStore<State>(
     initialState: State,
-    private val reducers: List<Reducer<State>>
+    private val reducers: List<Reducer<State>>,
+    private val middleware: List<Middleware<State>>
 ) : Store<State> {
 
     private var currentState: State = initialState
@@ -23,13 +25,28 @@ abstract class SimpleStore<State>(
     override fun getState() = currentState
 
     private fun dispatch(action: Action) {
-        val newState = applyReducers(currentState, action)
+        val newAction = applyMiddleware(currentState, action)
+        val newState = applyReducers(currentState, newAction)
         if (currentState == newState) {
             //No change
             return
         }
         currentState = newState
         subscriptions.forEach { it(currentState, ::dispatch) }
+    }
+
+
+    private fun applyMiddleware(state: State, action: Action): Action {
+        return next(0)(state, action, ::dispatch)
+    }
+
+    private fun next(index: Int): Next<State> {
+        if (index == middleware.size) {
+            // Last link of the chain. It just returns the action as is.
+            return { _, action, _ -> action }
+        }
+
+        return { state, action, dispatch -> middleware[index].invoke(state, action, dispatch, next(index+1)) }
     }
 
     private fun applyReducers(current: State, action: Action): State {
@@ -50,7 +67,8 @@ abstract class SimpleStore<State>(
 
 class AppStore : SimpleStore<AppState>(
     initialState = AppState(),
-    reducers = listOf(::reduceSearchState)
+    reducers = listOf(::reduceSearchState),
+    middleware = listOf(::loggerMiddleware, ::searchMiddleware)
 ) {
 
     companion object {

@@ -4,8 +4,6 @@ import LoginScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +18,6 @@ fun GitHubNavGraph(
     appState: AppState,
     dispatch: Dispatch?,
     modifier: Modifier = Modifier,
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     navController: NavHostController = rememberNavController(),
     startDestination: String = GitHubDestinations.LOGIN_ROUTE,
     navActions: GitHubNavigationActions = remember(navController) {
@@ -45,7 +42,7 @@ fun GitHubNavGraph(
                 navActions.navigateToSearch()
             })
         }
-        composable(route = GitHubDestinations.REPO_ROUTE){
+        composable(route = GitHubDestinations.SEARCH_ROUTE){
             SearchScreen(appState, dispatch)
         }
     }
