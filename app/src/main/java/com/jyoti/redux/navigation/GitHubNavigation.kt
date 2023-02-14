@@ -4,6 +4,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.jyoti.redux.navigation.GitHubScreens.LOGIN_SCREEN
 import com.jyoti.redux.navigation.GitHubScreens.REPO_SCREEN
+import com.jyoti.redux.navigation.GitHubScreens.SEARCH_SCREEN
 
 /**
  * Screens used in [GitHubDestinations]
@@ -11,6 +12,7 @@ import com.jyoti.redux.navigation.GitHubScreens.REPO_SCREEN
 private object GitHubScreens {
     const val REPO_SCREEN = "repo"
     const val LOGIN_SCREEN = "login"
+    const val SEARCH_SCREEN = "search"
 }
 
 /**
@@ -18,6 +20,7 @@ private object GitHubScreens {
  */
 object GitHubDestinations {
     const val REPO_ROUTE = REPO_SCREEN
+    const val SEARCH_ROUTE = SEARCH_SCREEN
     const val LOGIN_ROUTE = LOGIN_SCREEN
 }
 
@@ -32,6 +35,12 @@ class GitHubNavigationActions(private val navController: NavHostController) {
                 inclusive = true
             }
             launchSingleTop = true
+        }
+    }
+
+    fun navigateToSearch() {
+        navController.navigate(GitHubDestinations.SEARCH_ROUTE) {
+            navController.popBackStack()
         }
     }
 

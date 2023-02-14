@@ -9,9 +9,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jyoti.redux.controller.RepoScreen
+import com.jyoti.redux.redux.AppState
+import com.jyoti.redux.redux.Dispatch
+import com.jyoti.redux.search.SearchScreen
 
 @Composable
 fun GitHubNavGraph(
+    appState: AppState,
+    dispatch: Dispatch?,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = GitHubDestinations.LOGIN_ROUTE,
@@ -33,7 +38,12 @@ fun GitHubNavGraph(
             })
         }
         composable(route = GitHubDestinations.REPO_ROUTE){
-            RepoScreen()
+            RepoScreen(searchRepo = {
+                navActions.navigateToSearch()
+            })
+        }
+        composable(route = GitHubDestinations.SEARCH_ROUTE){
+            SearchScreen(appState, dispatch)
         }
     }
 
